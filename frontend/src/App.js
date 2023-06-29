@@ -27,9 +27,9 @@ function App() {
 
   const AuthRoute = ({ children }) => {
     const auth = useAuth();
-    
+    console.log(localStorage.getItem('userId'))
     return (
-      auth.loggedIn ? children : <Navigate to="/login" />
+      localStorage.getItem('userId') ? children : <Navigate to="/login" />
     )
   }
 
