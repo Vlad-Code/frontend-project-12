@@ -1,28 +1,48 @@
 import * as yup from 'yup';
 import { Formik } from 'formik';
 import { Form, Button } from 'react-bootstrap';
-import React from 'react';
+import { useRef, useEffect } from 'react';
+import axios from 'axios';
+
+const addProxy = (url) => {
+  const urlWithProxy = new URL('/get', 'https://allorigins.hexlet.app');
+  urlWithProxy.searchParams.set('url', url);
+  urlWithProxy.searchParams.set('disableCache', 'true');
+  return urlWithProxy.toString();
+};
 
 export const AuthorizationForm = () => {
+  const inputNick = useRef();
+  useEffect(() => {
+    inputNick.current.focus();
+  });
   const schema = yup.object().shape({
     nickname: yup.string().min(3, 'Недостаточно символов').required('Нужно заполнить'),
-    password: yup.string().min(6, 'Недостаточно символов').required('Нужно заполнить')
-  })
+    password: yup.string().min(5, 'Недостаточно символов').required('Нужно заполнить')
+  });
   return (
     <><h1 className="text-center">Введите имя</h1>
     <Formik
           validationSchema={schema}
           initialValues={{ nickname: "", password: "" }}
-          onSubmit={(values, { resetForm }) => {
+          onSubmit={ async (values, { resetForm }) => {
             console.log(values);
+            try {
+              const response = await axios.post(addProxy('/api/v1/login'), {username: values.name, password: values.password});
+              console.log(response);
+            } catch (e) {
+              console.log(e);
+            }
+            
             resetForm();
           }}
-      >
+    >
           {({ handleChange, handleSubmit, values, errors, touched, isSubmitting }) => (
               <Form onSubmit={handleSubmit}>
                   <Form.Group className="mb-3" controlId="formAuthorization">
                       <Form.Control type="text"
                           name="nickname"
+                          ref={inputNick}
                           placeholder="Введите ник"
                           onChange={handleChange}
                           value={values.nickname}
